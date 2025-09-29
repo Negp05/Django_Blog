@@ -1,17 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% if object %}Editar{% else %}Crear{% endif %} Post</title>
-</head>
-<body>
-    <h1>{% if object %}Editar{% else %}Crear{% endif %} Post</h1>
-    
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar</button>
-    </form>
-    
-    <a href="{% url 'posts:post_list' %}">Volver a la lista</a>
-</body>
-</html>
+
+from django import forms
+from .models import Post
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ["titulo", "slug", "contenido", "publicado"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Título"}),
+            "slug": forms.TextInput(attrs={"class": "form-control", "placeholder": "mi-post"}),
+            "contenido": forms.Textarea(attrs={"class": "form-control", "rows": 6}),
+            "publicado": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si el formulario viene ligado (POST) y hay errores, marca campos con 'is-invalid'
+        if self.is_bound:
+            for name, field in self.fields.items():
+                if self[name].errors:
+                    field.widget.attrs["class"] = (
+                        field.widget.attrs.get("class", "") + " is-invalid"
+                    ).strip()

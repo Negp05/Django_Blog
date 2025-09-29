@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+  {% load static %}
+  {% static 'img/hero.jpg' as HERO_URL %}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0b10" />
+  <title>{% block title %}THE VORTEX BLOG{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .navbar-blur {
+      backdrop-filter: saturate(180%) blur(8px);
+      background: rgba(15, 15, 20, .75);
+    }
+    /* HERO con imagen de fondo + overlay */
+    .hero {
+      position: relative;
+      color: #fff;
+      min-height: 46vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 4rem 1rem;
+      background:
+        linear-gradient(135deg, rgba(11,11,16,.70) 0%, rgba(10,4,32,.70) 100%),
+        url("{% static 'img/hero.jpg' %}") center/cover no-repeat fixed;
+    }
+    .post-card { transition: transform .2s ease; }
+    .post-card:hover { transform: translateY(-4px); }
+    footer a { color: inherit; text-decoration: underline; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-light">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-blur sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="{% url 'home' %}">THE VORTEX BLOG</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
+              aria-controls="navMain" aria-expanded="false" aria-label="Abrir navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
+          
+          <li class="nav-item"><a class="nav-link" href="{% url 'posts:post_list' %}">Posts</a></li>
+          
+        </ul>
+
+        <!-- Zona usuario -->
+        <ul class="navbar-nav ms-auto">
+          {% if user.is_authenticated %}
+            <li class="nav-item d-flex align-items-center me-2 text-white-50">
+              <small>Hola, {{ user.username }}</small>
+            </li>
+            <li class="nav-item">
+              <form method="post" action="{% url 'auth_perfiles:logout' %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-light btn-sm" type="submit">Cerrar sesión</button>
+              </form>
+            </li>
+          {% else %}
+            <li class="nav-item me-2">
+              <a class="btn btn-outline-light btn-sm" href="{% url 'auth_perfiles:login' %}">Iniciar sesión</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-light btn-sm" href="{% url 'auth_perfiles:register' %}">Crear cuenta</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <h1 class="display-5 fw-bold mb-2">THE VORTEX BLOG</h1>
+      <p class="lead mb-4">Compartiendo ideas y experiencias</p>
+
+      {# Un único CTA opcional a Posts (solo si la URL existe) #}
+      {% url 'posts:post_list' as posts_url %}
+      {% if posts_url %}
+        <a class="btn btn-primary btn-lg" href="{{ posts_url }}">Explorar posts</a>
+      {% endif %}
+    </div>
+  </header>
+
+    <!-- DESCRIPCION WEB -->
+  <section class="container my-5">
+  <h2 class="h4 mb-3">¿Qué es THE VORTEX BLOG?</h2>
+  <p class="text-secondary">
+    THE VORTEX BLOG es una plataforma de publicación sencilla y moderna donde autores pueden crear,
+    editar y compartir artículos. Los lectores descubren contenido actualizado, guardan favoritos y
+    participan con comentarios, todo en una interfaz limpia, rápida.
+  </p>
+</section>
+
+  <!-- MENSAJES -->
+  <div class="container mt-4">
+    {% if messages %}
+      {% for message in messages %}
+        {% if 'error' in message.tags %}
+          {% with 'danger' as level %}
+            <div class="alert alert-{{ level }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+          {% endwith %}
+        {% else %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- CONTENIDO DE CADA PÁGINA -->
+  <main class="container my-4">
+    {% block content %}{% endblock %}
+
+    {# Sección informativa por defecto para la portada #}
+    {% if block.super == "" %}
+      <section class="my-5">
+        <h2 class="h4 mb-3">Bienvenido a Vortex</h2>
+        <p class="text-secondary">
+          Un espacio para publicar artículos, aprender y compartir. Regístrate para comentar,
+          guardar favoritos y seguir a tus autores preferidos.
+        </p>
+      </section>
+
+      <section class="row g-4 my-2">
+        <div class="col-md-4">
+          <div class="card h-100 post-card">
+            <div class="card-body">
+              <h3 class="h5">Contenido útil</h3>
+              <p class="text-secondary mb-0">Tecnología, diseño, productividad y más—directo al grano.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 post-card">
+            <div class="card-body">
+              <h3 class="h5">Comunidad</h3>
+              <p class="text-secondary mb-0">Participa con comentarios y comparte tus ideas.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 post-card">
+            <div class="card-body">
+              <h3 class="h5">Simple y rápido</h3>
+              <p class="text-secondary mb-0">UI limpia con Bootstrap y autenticación integrada.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-dark text-white text-center py-4 mt-5">
+    <div class="container">
+      <p class="mb-1">&copy; {% now "Y" %} THE VORTEX BLOG</p>
+      <small class="text-white-50">Hecho con Django</small>
+    </div>
+  </footer>
+
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

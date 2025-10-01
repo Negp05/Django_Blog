@@ -12,8 +12,17 @@
 
         {# Los mensajes (éxitos/errores) ya los muestra base.html, por eso no los duplicamos aquí #}
 
-        <form method="post" novalidate>
-          {% csrf_token %}
+        <!-- 
+            La acción asegura que el formulario apunte a la URL correcta.
+            El {% csrf_token %} es necesario para evitar el error 403.
+        -->
+        <form method="post" action="{% url 'auth_perfiles:login' %}" novalidate>
+          {% csrf_token %} 
+          
+          <!-- Si existe una URL 'next' pasada desde la vista, la incluimos como campo oculto -->
+          {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+          {% endif %}
 
           <div class="mb-3">
             <label for="id_username" class="form-label">Usuario</label>
@@ -36,7 +45,7 @@
                    autocomplete="current-password"
                    required>
           </div>
-
+          
           <div class="d-grid">
             <button type="submit" class="btn btn-primary">Entrar</button>
           </div>

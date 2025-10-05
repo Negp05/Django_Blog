@@ -115,3 +115,7 @@ if 'runserver' not in sys.argv and 'migrate' not in sys.argv:
                 'NAME': BASE_DIR / 'db.sqlite3',
             }
         }
+print("🚀 DEPLOYMENT DEBUG: Database configuration completed!")
+print(f"🎯 FINAL DATABASE ENGINE: {DATABASES['default'].get('ENGINE')}")
+print(f"🔍 DATABASE_URL exists: {bool(os.environ.get('DATABASE_URL'))}")
+print(f"📁 BASE_DIR: {BASE_DIR}")

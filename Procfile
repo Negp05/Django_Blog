@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn Django_Blog.wsgi
+web: bash start.sh

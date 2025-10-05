@@ -32,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← AGREGAR ESTO
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,14 +60,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'blog.wsgi.application'
 
-# Database
+# DATABASE CONFIGURATION - FORCE SQLITE
+print("🚀 FORCING SQLITE DATABASE CONFIGURATION")
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+print(f"✅ DATABASE ENGINE: {DATABASES['default']['ENGINE']}")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -94,28 +97,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ← AGREGAR ESTO
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # WhiteNoise configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# EMERGENCY FALLBACK - If database configuration fails
-import sys
-
-# Check if we're in a production environment but database is not configured
-if 'runserver' not in sys.argv and 'migrate' not in sys.argv:
-    if not DATABASES['default'].get('ENGINE') or DATABASES['default'].get('ENGINE') == 'django.db.backends.dummy':
-        print("🚨 EMERGENCY: Using SQLite fallback for deployment")
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-print("🚀 DEPLOYMENT DEBUG: Database configuration completed!")
-print(f"🎯 FINAL DATABASE ENGINE: {DATABASES['default'].get('ENGINE')}")
-print(f"🔍 DATABASE_URL exists: {bool(os.environ.get('DATABASE_URL'))}")
-print(f"📁 BASE_DIR: {BASE_DIR}")

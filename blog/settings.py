@@ -101,3 +101,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# EMERGENCY FALLBACK - If database configuration fails
+import sys
+
+# Check if we're in a production environment but database is not configured
+if 'runserver' not in sys.argv and 'migrate' not in sys.argv:
+    if not DATABASES['default'].get('ENGINE') or DATABASES['default'].get('ENGINE') == 'django.db.backends.dummy':
+        print("🚨 EMERGENCY: Using SQLite fallback for deployment")
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }

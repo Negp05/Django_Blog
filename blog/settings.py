@@ -59,14 +59,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'blog.wsgi.application'
 
-# DATABASE CONFIGURATION - WORKS BOTH LOCALLY AND ON RAILWAY
-print("🚀 CONFIGURING DATABASE...")
+# CONFIGURACIÓN DE BASE DE DATOS - FUNCIONA TANTO LOCAL COMO EN RAILWAY
+print("🚀 CONFIGURANDO LA BASE DE DATOS...")
 
-# Try to use PostgreSQL on Railway, fallback to SQLite locally
+# Intentar usar PostgreSQL en Railway, usar SQLite localmente
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL and DATABASE_URL.startswith('postgresql://'):
-    # Use PostgreSQL on Railway
+    # Usar PostgreSQL en Railway
     try:
         import dj_database_url
         DATABASES = {
@@ -76,25 +76,25 @@ if DATABASE_URL and DATABASE_URL.startswith('postgresql://'):
                 conn_health_checks=True,
             )
         }
-        print(f"✅ USING POSTGRESQL: {DATABASES['default']['ENGINE']}")
+        print(f"✅ USANDO POSTGRESQL: {DATABASES['default']['ENGINE']}")
     except ImportError:
-        # Fallback to SQLite if dj_database_url not installed locally
+        # Usar SQLite si dj_database_url no está instalado localmente
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': BASE_DIR / 'db.sqlite3',
             }
         }
-        print("✅ USING SQLITE (dj-database-url not installed)")
+        print("✅ USANDO SQLITE (dj-database-url no está instalado)")
 else:
-    # Use SQLite locally
+    # Usar SQLite localmente
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    print("✅ USING SQLITE FOR LOCAL DEVELOPMENT")
+    print("✅ USANDO SQLITE PARA EL DESARROLLO LOCAL")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

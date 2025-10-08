@@ -8,6 +8,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 
 # --- Registro ---
 class RegisterForm(forms.ModelForm):
+    # Usar los nombres de campo que definiste
     password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Repite la contraseña", widget=forms.PasswordInput)
 
@@ -24,10 +25,12 @@ class RegisterForm(forms.ModelForm):
         return cleaned
 
     def save(self, commit=True):
+        # Crear la instancia del usuario, solo con username y email
         user = User(
             username=self.cleaned_data["username"],
             email=self.cleaned_data["email"],
         )
+        # Establecer la contraseña de forma segura
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
@@ -71,8 +74,8 @@ def login_view(request):
             ):
                 return redirect(next_url)
 
-            # Fallback: ir a "Mis posts"
-            return redirect("posts:my_posts")
+            # FALLBACK CORREGIDO: Redirige a 'posts:post_list' (el nombre correcto)
+            return redirect("posts:post_list")
 
         messages.error(request, "Usuario o contraseña incorrectos.")
 

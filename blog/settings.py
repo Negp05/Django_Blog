@@ -17,10 +17,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==========================
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-#f7tdvmtxenwnynaukss6&^2cj$iyy^f4fbsve4f^*7&f)7dki')
 
-# DEBUG estará activo localmente, pero se desactiva si defines DEBUG=False en Railway
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["*", ".railway.app", "localhost", "127.0.0.1"]
+
+# === AGREGAR ESTA CONFIGURACIÓN CSRF ===
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+]
+
+# Configuración de cookies seguras
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Para desarrollo local
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
 
 # ==========================
 # APLICACIONES INSTALADAS

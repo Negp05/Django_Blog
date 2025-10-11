@@ -11,4 +11,5 @@ urlpatterns = [
     
     path("", include(("auth_perfiles.urls", "auth_perfiles"), namespace="auth_perfiles")),
     path("", TemplateView.as_view(template_name="base.html"), name="home"),
+    path('social/', include('social.urls', namespace='social')),
 ]

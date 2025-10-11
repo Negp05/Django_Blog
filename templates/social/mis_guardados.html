@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Mis Posts Guardados · THE VORTEX BLOG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4 text-center">Mis Posts Guardados</h1>
+
+  {% if guardados %}
+    <div class="row g-4">
+      {% for b in guardados %}
+        {% with post=b.content_object %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ post.titulo }}</h5>
+              <p class="card-text text-muted small">
+                Por {{ post.autor }} · {{ post.creado|date:"d M Y" }}
+              </p>
+
+              <div class="d-flex gap-2">
+                <!-- Ver post -->
+                <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                  Ver post
+                </a>
+
+                <!-- Arranca como GUARDADO (porque esta página solo muestra guardados) -->
+                <button
+                  class="btn btn-sm btn-primary bookmark"
+                  data-model="posts.Post"
+                  data-id="{{ post.id }}"
+                >
+                  Guardado ✓
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center mt-5">
+      <p class="text-muted fs-5">Ups, parece que no tienes blogs guardados todavía :(</p>
+      <a href="{% url 'posts:post_list' %}" class="btn btn-outline-primary mt-3">
+        Explorar posts
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- CSRF para fetch -->
+<form id="csrf-holder" style="display:none">{% csrf_token %}</form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const csrfInput = document.querySelector('#csrf-holder input[name=csrfmiddlewaretoken]');
+    const csrftoken = csrfInput ? csrfInput.value : null;
+
+    async function postJSON(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) return null;
+      return res.json();
+    }
+
+    // Toggle de guardado desde "Mis guardados"
+    document.querySelectorAll('.bookmark').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const el = e.currentTarget;
+        const data = await postJSON("{% url 'social:toggle_bookmark' %}", {
+          model: el.dataset.model,
+          id: el.dataset.id
+        });
+        if (!data || !data.ok) return;
+
+        if (data.added) {
+          // quedó guardado
+          el.textContent = 'Guardado ✓';
+          el.classList.remove('btn-outline-primary', 'btn-danger');
+          el.classList.add('btn-primary');
+        } else {
+          // se quitó de guardados
+          // Opción A: solo cambiar el botón a "Guardar"
+          el.textContent = 'Guardar';
+          el.classList.remove('btn-primary', 'btn-danger');
+          el.classList.add('btn-outline-primary');
+
+          // Opción B: eliminar la tarjeta del DOM (descomenta si prefieres)
+          // el.closest('.col-md-6, .col-lg-4').remove();
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

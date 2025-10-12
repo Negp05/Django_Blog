@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-#f7tdvmtxenwnynaukss6&^2cj$iyy^f4fbsve4f^*7&f)7dki')
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
+#DEBUG = True
 ALLOWED_HOSTS = ["*", ".railway.app", "localhost", "127.0.0.1"]
 
 # === AGREGAR ESTA CONFIGURACIÓN CSRF ===

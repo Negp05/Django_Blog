@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'posts',
     'auth_perfiles',
+    'social',
 ]
 
 # ==========================

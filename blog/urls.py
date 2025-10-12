@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from django.contrib.auth import views as auth_views  # ← IMPORTANTE: Agrega esto
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,4 +15,7 @@ urlpatterns = [
     # === AGREGA ESTAS RUTAS DE AUTENTICACIÓN ===
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
+    # === APP SOCIAL ===
+    path('social/', include('social.urls', namespace='social')),
 ]

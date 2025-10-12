@@ -24,9 +24,24 @@
               Por {{ post.autor }} · {{ post.creado|date:"d M Y" }}
             </p>
             <p class="text-secondary">{{ post.contenido|truncatewords:30 }}</p>
+
+            {# Si ya calculas likes/loves/wows en la vista, puedes mostrarlos aquí #}
+            {# <p class="mt-2 mb-0"> 👍 {{ post.likes }} · ❤️ {{ post.loves }} · 😮 {{ post.wows }} </p> #}
           </div>
-          <div class="card-footer bg-white border-0">
-            <a href="{% url 'posts:post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">Leer más</a>
+
+          <div class="card-footer bg-white border-0 d-flex gap-2">
+            <a href="{% url 'posts:post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">
+              Leer más
+            </a>
+
+            {# Botón Guardar/Guardado con estado inicial correcto #}
+            <button
+              class="btn btn-sm {% if post.is_bookmarked %}btn-primary{% else %}btn-outline-primary{% endif %} bookmark"
+              data-model="posts.Post"
+              data-id="{{ post.id }}"
+            >
+              {% if post.is_bookmarked %}Guardado ✓{% else %}Guardar{% endif %}
+            </button>
           </div>
         </article>
       </div>
@@ -35,4 +50,55 @@
 {% else %}
   <div class="alert alert-secondary">Aún no hay posts publicados.</div>
 {% endif %}
+
+{# --- CSRF holder para que el JS obtenga el token --- #}
+<form id="csrf-holder" style="display:none">{% csrf_token %}</form>
+
+{# --- JS: va al final del template (aquí mismo) --- #}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Tomamos el token desde el input generado por {% csrf_token %}
+    const csrfInput = document.querySelector('#csrf-holder input[name=csrfmiddlewaretoken]');
+    const csrftoken = csrfInput ? csrfInput.value : null;
+
+    async function postJSON(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) return null;
+      return res.json();
+    }
+
+    // Toggle Guardar/Guardado
+    document.querySelectorAll('.bookmark').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const el = e.currentTarget;
+        const data = await postJSON("{% url 'social:toggle_bookmark' %}", {
+          model: el.dataset.model,   // "posts.Post" si tu app-model es ese
+          id: el.dataset.id
+        });
+        if (!data || !data.ok) return;
+
+        if (data.added) {
+          // Se guardó
+          el.textContent = 'Guardado ✓';
+          el.classList.remove('btn-outline-primary');
+          el.classList.add('btn-primary');
+        } else {
+          // Se quitó de guardados
+          el.textContent = 'Guardar';
+          el.classList.remove('btn-primary');
+          el.classList.add('btn-outline-primary');
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
